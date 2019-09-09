@@ -66,14 +66,11 @@ const store = new Vuex.Store({
         }
       })
     },
-    DELETE_REMINDER({columns}, {taskid, reminderid}){
+    DELETE_REMINDERS({columns}, {taskid}){
       columns.forEach((col) => {
         var task = col.tasks.find((t) => t.id === taskid)
         if(task){
-          var reminder = task.alerts.find((rem) => rem.id === reminderid)
-          if(reminder){
-            task.alerts.splice(task.alerts.indexOf(reminder), 1)
-          }
+          task.alerts = []
         }
       })
     },
@@ -169,8 +166,8 @@ const store = new Vuex.Store({
       }
       commit('ADD_REMINDER', {taskid, alertobj})
     },
-    delete_task_reminder({commit}, {taskid, reminderid}){
-      commit('DELETE_REMINDER', {taskid, reminderid})
+    delete_task_reminders({commit}, {taskid}){
+      commit('DELETE_REMINDERS', {taskid})
     },
     delete_column({commit}, {columnid}){
       commit('DELETE_COLUMN', {columnid})

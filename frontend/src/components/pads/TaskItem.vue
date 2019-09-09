@@ -1,34 +1,51 @@
 <template>
   <div class="list-group-item mb-2" draggable @dragstart="pickuptask($event, task.id, columnid)">
-    <small class="spt font-italic">{{ task.created | toHumanDate }}</small>
-    <p>    
-      <span class="mr-2"><small v-if="error_message" class="text-danger mr-2 error-message">{{error_message}}</small>#{{ task.id }}</span>
+    <!--[TOP LEFT] id, status, [goals], dueDate, [reminders] div -->
+    <div>    
+      <span class="mr-2"><small v-if="error_message" class="text-danger mr-2 error-message">{{error_message}}</small># {{ task.id }}</span>
       <span :class="task.done ? 'badge badge-success mr-2' : 'badge badge-warning mr-2'">{{ task.done ? 'Done' : '' }}</span>
       <span v-for="goal in taskGoals" :key="goal.id" class="badge badge-success mr-2">{{ goal.title }}</span>
-      <span class="badge badge-info">Due {{ task.dueDate | toHumanDate }}</span>
-    </p>
-    <p class="pts3">
+      <span class="badge badge-info mr-2">Due {{ task.dueDate | toHumanDate }}</span>
       <span v-for="alert in taskalerts" :key="alert.time" class="badge badge-warning mr-2">
         <font-awesome-icon icon="clock"/> {{alert.time}}
       </span>
-    </p>
-    <p v-if="!edit" class="text-left mt-4 mb-3 mr-5 pr-5">{{ task.text }}</p>
-    <p v-else>
-      <input @keyup.enter="save_edit" v-model="new_text" type="text" class="form-control border-warning mt-3 mb-3 mr-5">
-    </p>
-    <p>
-      <input @keyup.enter="save_reminder" v-if="setting_reminder" v-model="reminder_input" type="text" placeholder=" hh:mm (Enter to save)">
-    </p>
+    </div>
+
+    <!--[TOP RIGHT] Attachments div -->
+    <div>
+      <small @click="dropArea = !dropArea" class="spt2 font-italic"><a href="javascript:void(0)"><font-awesome-icon icon="paperclip" class="mr-2"/>Attachments</a></small>
+      <span v-if="dropArea" class="spt3 mt-1" title="Drop a file or click to explore."><small>Drop area <font-awesome-icon icon="question-circle"/></small></span>
+    </div>
+
+    <!--[BOTTOM RIGHT] Created date div -->
+    <div class="spt">
+      <small class="font-italic">{{ task.created | toHumanDate }}</small>
+    </div>
+    
+    <!--[CENTER] edit div or task text -->
+    <div>
+      <p v-if="!edit" class="text-left mt-4 mb-3 mr-5 pr-5">{{ task.text }}</p>
+      <p v-else>
+        <input @keyup.enter="save_edit" v-model="new_text" type="text" class="form-control border-warning mt-3 mb-3 mr-5">
+      </p>
+      <p>
+        <input v-if="setting_reminder" @keyup.enter="save_reminder" v-model="reminder_input" type="text" placeholder=" hh:mm (Enter to save)">
+      </p>
+    </div>
+
+    <!--[BOTTOM LEFT] calls to action  -->
     <div class="text-left">
+      <hr class="m-2">
       <span class="mr-3">
-        <a href="javascript:void(0)" class="text-success" @click="toggle_done"><font-awesome-icon icon="check"/> {{ task.done ? 'Undo' : 'Done' }}</a>
+        <a href="javascript:void(0)" class="text-success" @click="toggle_done({taskid: task.id})"><font-awesome-icon icon="check"/> {{ task.done ? 'Undo' : 'Done' }}</a>
       </span>
       <b-dropdown size="sm" text="More" variant="outline-secondary" class="m-2">
         <b-dropdown-item-button v-if="!edit" @click="edit = !edit"><font-awesome-icon icon="pen" class="text-info mr-3"/>Edit</b-dropdown-item-button>
         <b-dropdown-item-button v-else @click="save_edit"><font-awesome-icon icon="save" class="text-info mr-3"/>Save</b-dropdown-item-button>
         <b-dropdown-item-button @click="setting_reminder = !setting_reminder"><font-awesome-icon icon="clock" class="text-info mr-3"/>Remind me</b-dropdown-item-button>
-        <b-dropdown-divider></b-dropdown-divider>
-        <b-dropdown-item-button @click="delete_task"><font-awesome-icon icon="trash" class="text-danger mr-3"/>Delete</b-dropdown-item-button>
+        <b-dropdown-divider></b-dropdown-divider>        
+        <b-dropdown-item-button @click="delete_task_reminders({taskid: task.id})"><font-awesome-icon icon="trash" class="text-danger mr-3"/>Clear Reminders</b-dropdown-item-button>
+        <b-dropdown-item-button @click="delete_task"><font-awesome-icon icon="trash" class="text-danger mr-3"/>Delete Task</b-dropdown-item-button>
       </b-dropdown>
     </div>
   </div>
@@ -36,11 +53,12 @@
 
 <script>
 import moment from 'moment'
-import {mapState} from 'vuex'
+import {mapActions} from 'vuex'
 export default {
   name: 'TaskItem',
   data(){
     return{
+      dropArea: false,
       new_text: this.note.text,
       edit:false,
       task: this.note, // props are not reactive. To ensure reactivity remains, they must be used as local data properties.
@@ -66,6 +84,7 @@ export default {
     }
   },
   methods:{
+    ...mapActions(['toggle_done', 'delete_task_reminders']),
     pickuptask(e, taskid, columnid){
       e.dataTransfer.effectAllowed = "move"
       e.dataTransfer.dropEffect = "move"
@@ -93,9 +112,6 @@ export default {
       this.setting_reminder = false
       this.edit = false
     },
-    toggle_done(){
-      this.$store.dispatch('toggle_done', {taskid: this.task.id})
-    },
     delete_task(){
       if(confirm('Delete task?')){
         this.$store.dispatch('delete_task', {taskid: this.task.id})
@@ -103,7 +119,6 @@ export default {
     }
   },
   computed:{
-    ...mapState(['columns']),
     taskalerts(){
       return this.task.alerts.filter((alert) => alert.completed === false)
     }
@@ -130,16 +145,18 @@ input:focus, input.form-control:focus{
   right: 10px!important;
   bottom: 15px!important;
 }
-.pts2{
+.spt2{
   position: absolute!important;
+  top: 10px;
   right: 10px!important;
 }
-.pts3{
+.spt3{
   position: absolute!important;
-  left: 20px!important;
+  top: 30px;
+  right: 10px!important;
+  border: 1px dotted lightgray;
+  padding: 1rem;
+  opacity: 0.7;
 }
-.pts{
-  position: absolute!important;
-  right: 70px!important;
-}
+
 </style>
