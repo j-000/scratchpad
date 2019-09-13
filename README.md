@@ -2,7 +2,7 @@
     <img src="https://github.com/j-000/scratchpad/blob/master/frontend/src/assets/images/logo1.png" />
 </p>
 <p  align="center">
-     <a href="https://app.netlify.com/sites/gallant-aryabhata-4161b7/deploys">
+     <a href="https://scratchy.netlify.com/deploys">
         <img src="https://api.netlify.com/api/v1/badges/0dfd3c21-778c-4385-bd62-1715f4f53817/deploy-status"/>
     </a>
   </p>
