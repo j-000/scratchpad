@@ -7,7 +7,7 @@
     </a>
   </p>
 <p align="center">
-    <a href="https://gallant-aryabhata-4161b7.netlify.com/">
+    <a href="https://scratchy.netlify.com/">
       <img src="https://img.shields.io/badge/Try%20it!-online-orange?style=flat-square" />
     </a>
     <a href="https://github.com/j-000/scratchpad/blob/master/LICENSE">
@@ -27,7 +27,7 @@ If, like me, you need to keep track of how long you take working on certain task
 ![](https://github.com/j-000/scratchpad/blob/master/frontend/src/assets/gifs/intro2.gif)
 
 ## You can try it out
-[Scratchy Online](https://gallant-aryabhata-4161b7.netlify.com/)
+[Scratchy Online](https://scratchy.netlify.com/)
 :smile: No questions asked!
 
 
